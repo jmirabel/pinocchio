@@ -175,9 +175,33 @@ namespace se3
             case ::urdf::Joint::FLOATING:
             {
               joint_info << "joint FreeFlyer";
+
+              typedef JointModelFreeFlyer::ConfigVector_t ConfigVector_t;
+              typedef JointModelFreeFlyer::TangentVector_t TangentVector_t;
+
+              TangentVector_t max_effort;
+              TangentVector_t max_velocity;
+              ConfigVector_t lower_position;
+              ConfigVector_t upper_position;
+
+              if (joint->limits)
+              {
+                max_effort << joint->limits->effort;
+                max_velocity << joint->limits->velocity;
+                lower_position << joint->limits->lower;
+                upper_position << joint->limits->upper;
+              }
+
+              const ConfigVector_t::Scalar u = 1.01;
+              lower_position.tail<4>().setConstant(-u);
+              upper_position.tail<4>().setConstant( u);
+
               addJointAndBody(model,JointModelFreeFlyer(),
                               parentFrameId,jointPlacement,joint->name,
-                              Y,link->name);
+                              Y,link->name,
+                              max_effort,max_velocity,
+                              lower_position, upper_position);
+
               
               break;
             }
@@ -424,6 +448,10 @@ namespace se3
                 lower_position << joint->limits->lower;
                 upper_position << joint->limits->upper;
               }
+
+              const ConfigVector_t::Scalar u = 1.01;
+              lower_position.tail<2>().setConstant(-u);
+              upper_position.tail<2>().setConstant( u);
               
               addJointAndBody(model,JointModelPlanar(),
                               parentFrameId,jointPlacement,joint->name,
