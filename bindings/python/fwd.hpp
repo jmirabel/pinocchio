@@ -9,6 +9,22 @@
 #include "pinocchio/fwd.hpp"
 #include <eigenpy/eigenpy.hpp>
 
+#define PYPINOCCHIO_DEPRECATED_ATTRIBUTE_WRAPPER(CLASS,ATTRIB) deprecated_ ## CLASS ## _ ## ATTRIB
+
+/// \param MSG message telling what should be used instead of this attribute.
+#define PYPINOCCHIO_DECL_DEPRECATED_ATTRIBUTE_WRAPPER(TYPE,CLASS,ATTRIB,MSG)                 \
+struct PYPINOCCHIO_DEPRECATED_ATTRIBUTE_WRAPPER(CLASS,ATTRIB) {                              \
+  static inline void warn() {                                                                \
+    static bool firstTime = true;                                                            \
+    if (firstTime) {                                                                         \
+      firstTime = false;                                                                     \
+      deprecationWarning("Attribute " #ATTRIB " of class " #CLASS " is deprecated." MSG);  \
+    }                                                                                        \
+  }                                                                                          \
+  static inline TYPE& get(CLASS& obj) { warn(); return obj.ATTRIB; }                         \
+  static inline void set(CLASS& obj, const TYPE& attr) { warn(); obj.ATTRIB = attr; }        \
+}
+
 namespace pinocchio
 {
   namespace python
@@ -43,6 +59,7 @@ namespace pinocchio
     void exposeFCL();
 #endif // PINOCCHIO_WITH_HPP_FCL_PYTHON_BINDINGS
 
+    void deprecationWarning(const char* msg);
   } // namespace python
 } // namespace pinocchio
 

@@ -18,6 +18,15 @@ namespace pinocchio
   namespace python
   {
     namespace bp = boost::python;
+#ifdef PINOCCHIO_WITH_HPP_FCL
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    PYPINOCCHIO_DECL_DEPRECATED_ATTRIBUTE_WRAPPER(hpp::fcl::CollisionRequest,
+        GeometryData, collisionRequest, "Use collisionRequests instead.");
+    PYPINOCCHIO_DECL_DEPRECATED_ATTRIBUTE_WRAPPER(hpp::fcl::DistanceRequest,
+        GeometryData, distanceRequest, "Use distanceRequests instead.");
+#pragma GCC diagnostic pop
+#endif // PINOCCHIO_WITH_HPP_FCL
     
     /* --- COLLISION PAIR --------------------------------------------------- */
     /* --- COLLISION PAIR --------------------------------------------------- */
@@ -66,12 +75,20 @@ namespace pinocchio
                       "Vector of active CollisionPairs")
         
 #ifdef PINOCCHIO_WITH_HPP_FCL
+        .def_readonly("distanceRequest",
+                      bp::make_function(&PYPINOCCHIO_DEPRECATED_ATTRIBUTE_WRAPPER(GeometryData,distanceRequest)::get,
+                        bp::return_value_policy<bp::return_by_value>()),
+                      "Deprecated. Use distanceRequests attribute instead.")
         .def_readonly("distanceRequests",
                       &GeometryData::distanceRequests,
                       "Defines which information should be computed by FCL for distance computations")
         .def_readonly("distanceResults",
                       &GeometryData::distanceResults,
                       "Vector of distance results.")
+        .add_property("collisionRequest",
+                      bp::make_function(&PYPINOCCHIO_DEPRECATED_ATTRIBUTE_WRAPPER(GeometryData,collisionRequest)::get,
+                        bp::return_value_policy<bp::return_by_value>()),
+                      "Deprecated. Use collisionRequests attribute instead.");
         .def_readonly("collisionRequests",
                       &GeometryData::collisionRequests,
                       "Defines which information should be computed by FCL for collision computations.\n\n"
@@ -100,19 +117,6 @@ namespace pinocchio
              "Deactivate the collsion pair pair_id in geomModel.collisionPairs if it exists.")
         ;
 
-#ifdef PINOCCHIO_WITH_HPP_FCL  
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-        cl
-        .def_readonly("distanceRequest",
-                      &GeometryData::distanceRequest,
-                      "Deprecated. Use distanceRequests attribute instead.")
-        .def_readonly("collisionRequest",
-                      &GeometryData::collisionRequest,
-                      "Deprecated. Use collisionRequests attribute instead.")
-        ;
-#pragma GCC diagnostic pop
-#endif // PINOCCHIO_WITH_HPP_FCL
       }
              
       /* --- Expose --------------------------------------------------------- */

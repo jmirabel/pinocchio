@@ -21,6 +21,18 @@
 namespace bp = boost::python;
 using namespace pinocchio::python;
 
+namespace pinocchio
+{
+namespace python
+{
+void deprecationWarning(const char* msg)
+{
+  bp::object warnings = bp::import("warnings");
+  warnings.attr("warn")(msg);
+}
+}
+}
+
 BOOST_PYTHON_MODULE(libpinocchio_pywrap)
 {
   bp::docstring_options module_docstring_options(true,true,false);
